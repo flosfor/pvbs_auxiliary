@@ -27,7 +27,7 @@ savePath_2 = savePath;
 %}
 
 
-%% do shit  <-- RUN ME!
+%% do stuff  <-- RUN ME!
 
 
 %%% keep a record of file names
@@ -62,7 +62,7 @@ for i = 1:columns
 end
 
 
-%%% same shit for dff
+%%% same stuff for dff
 
 dff_temp = uncaging.dffPeak;
 
@@ -85,7 +85,7 @@ for i = 1:columns
 end
 
 
-%%% same shit for expected
+%%% same stuff for expected
 
 expected_temp = uncaging.expected;
 
@@ -108,7 +108,7 @@ for i = 1:columns
 end
 
 
-%%% same shit for measured
+%%% same stuff for measured
 
 measured_temp = uncaging.measured;
 
@@ -131,7 +131,7 @@ for i = 1:columns
 end
 
 
-%%% same shit for spine counts
+%%% same stuff for spine counts
 spineCountUnits_temp = uncaging.spineCountUnits;
 spineCountMeasured_temp = uncaging.spineCountMeasured;
 
@@ -173,7 +173,7 @@ for i = 1:columns
 end
 
 
-%%% prepare to save shit (not actually saving shit yet, which is done at the end)
+%%% prepare to save stuff (not actually saving stuff yet, which is done at the end)
 
 saveName = 'unc_unwrapped';
 savePath = cd;
@@ -197,7 +197,7 @@ warning('on');
 savePath = [savePath, timeStamp, '\'];
 
 
-%%% clean shit up
+%%% clean stuff up
 
 clear i j 
 clear rows columns
@@ -213,7 +213,6 @@ clear todayYY todayMM todayDD todayhh todaymm todayss
 clear timeStamp
 
 
-%%% actually save shit
+%%% actually save stuff
 
 save([savePath, saveName]);
-
