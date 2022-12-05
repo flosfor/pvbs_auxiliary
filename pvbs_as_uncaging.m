@@ -2,10 +2,14 @@
 % (the .mat exported from PVBS uncaging analysis preset)
 
 
-%% if you want (before loading the uncaging .mat, obviously)
+%% if you want
+
+%{
+clear all
+%}
 
 %%{
-clear all
+clearvars -except uncaging % for the lazy person
 %}
 
 
