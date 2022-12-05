@@ -13,10 +13,17 @@ clear all
 
 %{
 uncaging_2 = uncaging;
-gain_2 = gain;
-dff_2 = dff;
+fileNamePairs_2 = fileNamePairs;
+fileNameUnits_2 = fileNameUnits;
+fileNameMeasured_2 = fileNameMeasured;
 expected_2 = expected;
 measured_2 = measured;
+gain_2 = gain;
+dff_2 = dff;
+SpineCountUnits_2 = SpineCountUnits_2;
+SpineCountMeasured_2 = SpineCountMeasured_2;
+saveName_2 = saveName;
+savePath_2 = savePath;
 %}
 
 
