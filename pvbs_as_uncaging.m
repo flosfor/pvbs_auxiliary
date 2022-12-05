@@ -132,8 +132,8 @@ end
 
 
 %%% same shit for spine counts
-spineCountUnits_temp = uncaging.spineCountUnits'; % mind the transpose
-spineCountMeasured_temp = uncaging.spineCountMeasured'; % mind the transpose
+spineCountUnits_temp = uncaging.spineCountUnits;
+spineCountMeasured_temp = uncaging.spineCountMeasured;
 
 % i have no idea what these are anymore
 columns = size(spineCountUnits_temp, 2);
