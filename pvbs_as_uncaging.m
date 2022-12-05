@@ -2,7 +2,7 @@
 % (the .mat exported from PVBS uncaging analysis preset)
 
 
-%% if you want
+%% if you want (before loading the uncaging .mat, obviously)
 
 %%{
 clear all
@@ -124,6 +124,48 @@ for i = 1:columns
 end
 
 
+%%% same shit for spine counts
+spineCountUnits_temp = uncaging.spineCountUnits'; % mind the transpose
+spineCountMeasured_temp = uncaging.spineCountMeasured'; % mind the transpose
+
+% i have no idea what these are anymore
+columns = size(spineCountUnits_temp, 2);
+rows = 1;
+
+for i = 1:columns
+    spineCountUnits_temp_temp = spineCountUnits_temp{i};
+    rows = max(rows, length(spineCountUnits_temp_temp));
+end
+spineCountUnits = nan(rows, columns);
+
+for i = 1:columns
+    spineCountUnits_temp_temp = spineCountUnits_temp{i};
+    spineCountUnits_temp_temp_temp = nan(rows, 1);
+    for j = 1:length(spineCountUnits_temp_temp)
+        spineCountUnits_temp_temp_temp(j) = spineCountUnits_temp_temp(j);
+    end
+    spineCountUnits(:, i) = spineCountUnits_temp_temp_temp;
+end
+
+columns = size(spineCountMeasured_temp, 2);
+rows = 1;
+
+for i = 1:columns
+    spineCountMeasured_temp_temp = spineCountMeasured_temp{i};
+    rows = max(rows, length(spineCountMeasured_temp_temp));
+end
+spineCountMeasured = nan(rows, columns);
+
+for i = 1:columns
+    spineCountMeasured_temp_temp = spineCountMeasured_temp{i};
+    spineCountMeasured_temp_temp_temp = nan(rows, 1);
+    for j = 1:length(spineCountMeasured_temp_temp)
+        spineCountMeasured_temp_temp_temp(j) = spineCountMeasured_temp_temp(j);
+    end
+    spineCountMeasured(:, i) = spineCountMeasured_temp_temp_temp;
+end
+
+
 %%% prepare to save shit (not actually saving shit yet, which is done at the end)
 
 saveName = 'unc_unwrapped';
@@ -136,10 +178,16 @@ todayDD = sprintf('%02.0f', day(datetime));
 todayhh = sprintf('%02.0f', hour(datetime));
 todaymm = sprintf('%02.0f', minute(datetime));
 todayss = sprintf('%02.0f', second(datetime));
+timeStamp = [todayYY, todayMM, todayDD ,'_', todayhh, todaymm, todayss];
 
 saveName = [saveName, '_', todayYY, todayMM, todayDD, '_', todayhh, todaymm, todayss];
 saveName = [saveName, '.mat'];
 savePath = [savePath, '\']; % appending backslash for proper formatting
+cd(savePath);
+warning('off'); % in case directory exists for mkdir below - shouldn't be relevant for now
+mkdir(timeStamp);
+warning('on');
+savePath = [savePath, timeStamp, '\'];
 
 
 %%% clean shit up
@@ -151,12 +199,14 @@ clear gain_temp gain_temp_temp gain_temp_temp_temp
 clear dff_temp dff_temp_temp dff_temp_temp_temp
 clear expected_temp expected_temp_temp expected_temp_temp_temp
 clear measured_temp measured_temp_temp measured_temp_temp_temp
+clear spineCountUnits_temp spineCountUnits_temp_temp spineCountUnits_temp_temp_temp
+clear spineCountMeasured_temp spineCountMeasured_temp_temp spineCountMeasured_temp_temp_temp
 
 clear todayYY todayMM todayDD todayhh todaymm todayss
+clear timeStamp
 
 
 %%% actually save shit
 
 save([savePath, saveName]);
-
 
