@@ -26,9 +26,15 @@ apThresholdDvdt = 20;
 %   rates intended for AP waveform analysis (e.g. >= 50 kHz)
 oneStepAhead = 1; 
 
+% save after running
+saveResults = 0; % 1 to save automatically, 0 to disable
+
+% obsolete
+%{
 % example data to display (set either to 0 to skip display)
 displayExp = 1; % experiment # from the list of experiments
-displaySwp = 1; % sweep # from the experiment selected above
+displaySwp = 2; % sweep # from the experiment selected above
+%}
 
 % --------------------
 
@@ -37,6 +43,8 @@ displaySwp = 1; % sweep # from the experiment selected above
 vRec = h.exp.data.VRec;
 %experimentCount = h.exp.experimentCount % this will also work
 experimentCount = size(vRec, 2);
+fileName = h.exp.fileName; % just for record keeping
+filePath = h.exp.filePath; % ditto
 
 % initialize output
 vDvdt = cell(1, experimentCount); % V, dV/dt
@@ -98,6 +106,7 @@ else
 end
 
 % plot just one example
+%{
 if (displayExp*displaySwp)
     plotTarget = vDvdt{displayExp};
     plotTarget = plotTarget{displaySwp};
@@ -106,11 +115,69 @@ if (displayExp*displaySwp)
     ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
     xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
 end
+%}
+
+% browser - initialize
+dvdtWin = figure('name', 'dV/dt', 'numbertitle', 'off');
+ui.dvdtPlot = axes('parent', dvdtWin, 'units', 'normalized', 'position', [0.15, 0.15, 0.75, 0.6], 'xminortick', 'on', 'yminortick', 'on', 'box', 'on');
+ui.expList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', h.exp.fileName, 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.275, 0.8, 0.325, 0.05], 'Callback', @selectFile, 'interruptible', 'off');
+ui.swpList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', {''}, 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.8, 0.8, 0.075, 0.05], 'Callback', @selectSweep, 'interruptible', 'off');
+ui.expText = uicontrol('parent', dvdtWin, 'Style', 'text', 'string', 'Experiment:', 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.125, 0.8, 0.125, 0.05]);
+ui.swpText = uicontrol('parent', dvdtWin, 'Style', 'text', 'string', 'Sweep:', 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.625, 0.8, 0.125, 0.05]);
+h2 = struct();
+h2.ui = ui;
+h2.vDvdt = vDvdt;
+guidata(dvdtWin, h2);
+
+% browser - continued
+vRecTemp = vRec{1};
+sweepCountNow = size(vRecTemp, 2); % sweepCount was used earlier
+sweepList = {};
+for i = 1:sweepCountNow
+    sweepList{end + 1} = num2str(i);
+end
+set(h2.ui.swpList, 'string', sweepList);
+set(h2.ui.swpList, 'value', 1);
+plotTarget = vDvdt{1}; % default to 1st experiment
+plotTarget = plotTarget{1}; % default to 1st sweep
+axes(ui.dvdtPlot);
+plot(plotTarget(:,1), plotTarget(:,2), 'color', 'k');
+ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
+xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
 
 
-% clean up
-clearvars -except h vDvdt apThreshold
-%clearvars -except vDvdt apThreshold
+% clean up... later
+%{
+clearvars -except fileName filePath vDvdt apThreshold vRec
+%}
+
+% save stuff in a real stupid way
+if saveResults
+    saveName = 'unc_unwrapped';
+    savePath = cd;
+    todayYY = num2str(year(datetime));
+    todayYY = todayYY(end-1:end);
+    todayMM = sprintf('%02.0f', month(datetime));
+    todayDD = sprintf('%02.0f', day(datetime));
+    todayhh = sprintf('%02.0f', hour(datetime));
+    todaymm = sprintf('%02.0f', minute(datetime));
+    todayss = sprintf('%02.0f', second(datetime));
+    timeStamp = [todayYY, todayMM, todayDD ,'_', todayhh, todaymm, todayss];
+    saveName = [saveName, '_', todayYY, todayMM, todayDD, '_', todayhh, todaymm, todayss];
+    saveName = [saveName, '.mat'];
+    savePath = [savePath, '\']; % appending backslash for proper formatting
+    cd(savePath);
+    warning('off'); % in case directory exists for mkdir below - shouldn't be relevant for now
+    mkdir(timeStamp);
+    warning('on');
+    savePath = [savePath, timeStamp, '\'];
+    saveName = [savePath, saveName];
+    clearvars -except fileName filePath vDvdt apThreshold vRec saveName
+    save(saveName);
+else
+    clearvars -except fileName filePath vDvdt apThreshold vRec saveName
+end
+
 
 % actually doing stuff here
 function [v, dvdt] = getDvdt(inputArray, tColumn, vColumn)
@@ -129,3 +196,40 @@ dvdt = dvdt ./ dt;
 v = v(2:end); % to match with dvdt
 
 end
+
+% doing extra stuff
+function selectFile(src, ~)
+h2 = guidata(src);
+vDvdt = h2.vDvdt;
+fileNum = src.Value;
+vDvdtTemp = vDvdt{fileNum};
+sweepCountNow = size(vDvdtTemp, 2); % sweepCount was used earlier
+sweepList = {};
+for i = 1:sweepCountNow
+    sweepList{end + 1} = num2str(i);
+end
+set(h2.ui.swpList, 'string', sweepList);
+set(h2.ui.swpList, 'value', 1);
+vDvdtTemp = vDvdtTemp{1}; % default to 1st sweep
+axes(h2.ui.dvdtPlot);
+plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
+ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
+xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
+guidata(src, h2);
+end
+
+% doing extra extra stuff
+function selectSweep(src, ~)
+h2 = guidata(src);
+vDvdt = h2.vDvdt;
+fileNum = h2.ui.expList.Value;
+vDvdtTemp = vDvdt{fileNum};
+sweepCountNow = src.Value;
+vDvdtTemp = vDvdtTemp{sweepCountNow};
+axes(h2.ui.dvdtPlot);
+plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
+ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
+xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
+guidata(src, h2);
+end
+
