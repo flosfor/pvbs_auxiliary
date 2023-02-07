@@ -11,8 +11,8 @@ voltageColumn = 2;
 % define AP threshold
 apThresholdDvdt = 10; % AP threshold will be defined as Vm at which dV/dt first crosses this value
 %  variable oneStepAhead (you think of a better name):
-%   set to 1 (default) to take the Vm value immediately before the above 
-%   threshold dV/dt as the AP threshold, or set to 0 to take the Vm
+%   set to 1 (default) to take the Vm value immediately before crossing the 
+%   above threshold dV/dt as the AP threshold, or set to 0 to take the Vm
 %   immediately after; the former can be more useful for recordings with 
 %   usual sampling rates (10 kHz, 20 kHz, ...) instead of higher sampling
 %   rates intended for AP waveform analysis
@@ -61,7 +61,7 @@ if oneStepAhead
             vDvdtTempTemp = vDvdtTemp{j};
             dvdtTemp = vDvdtTempTemp(:, 2); % dVdt was saved in column 2 by getDvdt()
             try
-                iAmHere = find(dvdtTemp > apThresholdDvdt, 1);
+                iAmHere = find(dvdtTemp >= apThresholdDvdt, 1);
                 iAmHere = iAmHere - 1; % one step ahead
                 apThresholdTemp{j} = vDvdtTempTemp(iAmHere, 1);
             catch ME
@@ -79,7 +79,7 @@ else
             vDvdtTempTemp = vDvdtTemp{j};
             dvdtTemp = vDvdtTempTemp(:, 2); % dVdt was saved in column 2 by getDvdt()
             try
-                iAmHere = find(dvdtTemp > apThresholdDvdt, 1);
+                iAmHere = find(dvdtTemp >= apThresholdDvdt, 1);
                 apThresholdTemp{j} = vDvdtTempTemp(iAmHere, 1);
             catch ME
                 apThresholdTemp{j} = NaN;
