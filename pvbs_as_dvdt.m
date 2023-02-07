@@ -4,12 +4,18 @@
 
 % ---------- set parameters here ----------
 
-% assign columns (e.g. timestamp at column 1, V_m at column 2)
+% assign columns (e.g. time at column 1, V_m at column 2 - PVBS default)
 timeStampColumn = 1;
 voltageColumn = 2;
 
 % define AP threshold
-apThresholdDvdt = 10; % AP threshold will be defined as Vm at which dV/dt first crosses this value
+%  variable apThresholdDvdt: 
+%   AP threshold will be defined as Vm at which dV/dt first crosses this
+%   value; _USE CAUTION_ not to detect the point of DC injection onset.
+%   10 will work if carefully done, 20 will return similar results 
+%   (especially with oneStepAhead = 1) at lower sampling rates while being 
+%   safer
+apThresholdDvdt = 20;
 %  variable oneStepAhead (you think of a better name):
 %   set to 1 (default) to take the Vm value immediately before crossing the 
 %   above threshold dV/dt as the AP threshold, or set to 0 to take the Vm
@@ -18,7 +24,7 @@ apThresholdDvdt = 10; % AP threshold will be defined as Vm at which dV/dt first 
 %   rates intended for AP waveform analysis
 oneStepAhead = 1; 
 
-% example data to display (set either to 0 to ignore)
+% example data to display (set either to 0 to skip display)
 displayExp = 1; % experiment # from the list of experiments
 displaySwp = 1; % sweep # from the experiment selected above
 
