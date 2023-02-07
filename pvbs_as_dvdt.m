@@ -12,16 +12,16 @@ voltageColumn = 2;
 %  variable apThresholdDvdt: 
 %   AP threshold will be defined as Vm at which dV/dt first crosses this
 %   value; _USE CAUTION_ not to detect the point of DC injection onset.
-%   10 will work if carefully done, 20 will return similar results 
-%   (especially with oneStepAhead = 1) at lower sampling rates while being 
-%   safer
+%   apThresholdDvdt = 10 will work if carefully done, 20 will return 
+%   similar results (especially with oneStepAhead = 1) at lower sampling 
+%   rates or with noisier recordings, while being safer
 apThresholdDvdt = 20;
 %  variable oneStepAhead (you think of a better name):
 %   set to 1 (default) to take the Vm value immediately before crossing the 
 %   above threshold dV/dt as the AP threshold, or set to 0 to take the Vm
 %   immediately after; the former can be more useful for recordings with 
 %   usual sampling rates (10 kHz, 20 kHz, ...) instead of higher sampling
-%   rates intended for AP waveform analysis
+%   rates intended for AP waveform analysis (e.g. >= 50 kHz)
 oneStepAhead = 1; 
 
 % example data to display (set either to 0 to skip display)
