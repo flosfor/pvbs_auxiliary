@@ -15,15 +15,16 @@ voltageColumn = 2;
 %  apThresholdDvdt: 
 %   AP threshold will be defined as Vm at which dV/dt first crosses this
 %   value; _USE CAUTION_ not to detect the point of DC injection onset.
-%   apThresholdDvdt = 10 will work if carefully done, 20 will return 
-%   similar results (especially with oneStepAhead = 1) at lower sampling 
-%   rates or with noisier recordings, while being safer
+%   apThresholdDvdt = 10 will work most of the time, 20 will return 
+%   similar results (especially with oneStepAhead = 1) while being safer 
+%   at lower sampling rates or with noisier recordings, but with larger 
+%   error if interpolate == 1
     apThresholdDvdt = 10;
 %
 %  interpolate:
 %   interpolate Vm value from those immediately before and after the 
 %   above defined threshold (1 to enable, 0 to disable)
-    interpolate = 1; 
+    interpolate = 0; 
 %
 %  oneStepAhead:  (you think of a better name)
 %   _if_ interpolate == 0, set oneStepAhead = 1 to take the Vm value 
