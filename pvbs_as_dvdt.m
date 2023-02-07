@@ -124,9 +124,12 @@ ui.expList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', h.exp.
 ui.swpList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', {''}, 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.8, 0.8, 0.075, 0.05], 'Callback', @selectSweep, 'interruptible', 'off');
 ui.expText = uicontrol('parent', dvdtWin, 'Style', 'text', 'string', 'Experiment:', 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.125, 0.8, 0.125, 0.05]);
 ui.swpText = uicontrol('parent', dvdtWin, 'Style', 'text', 'string', 'Sweep:', 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.625, 0.8, 0.125, 0.05]);
+ui.infoBox = uicontrol('parent', dvdtWin, 'Style', 'text', 'backgroundcolor', 'w', 'string', sprintf('AP Threshold: N/A \n(dV/dt = %.2f (V/s))', apThresholdDvdt), 'horizontalalignment', 'left', 'Units', 'normalized', 'Position', [0.2, 0.6, 0.3, 0.1]);
 h2 = struct();
 h2.ui = ui;
 h2.vDvdt = vDvdt;
+h2.apThresholdDvdt = apThresholdDvdt;
+h2.apThreshold = apThreshold;
 guidata(dvdtWin, h2);
 
 % browser - continued
@@ -142,9 +145,20 @@ plotTarget = vDvdt{1}; % default to 1st experiment
 plotTarget = plotTarget{1}; % default to 1st sweep
 axes(ui.dvdtPlot);
 plot(plotTarget(:,1), plotTarget(:,2), 'color', 'k');
+hold on;
+try
+    set(ui.infoBox, 'string', sprintf('AP Threshold: N/A \n(dV/dt = %.2f (V/s))', apThresholdDvdt));
+    yline(apThresholdDvdt, 'color', 'r');
+    apThresholdNow = apThreshold;
+    apThresholdNow = apThresholdNow{1}; % default to 1st file
+    apThresholdNow = apThresholdNow{1}; % default to 1st sweep
+    xline(apThresholdNow, 'color', 'r');
+    set(ui.infoBox, 'string', sprintf('AP Threshold: %.2f (mV) \n(dV/dt = %.2f (V/s))', apThresholdNow, apThresholdDvdt));
+catch ME
+end
+hold off;
 ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
 xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
-
 
 % clean up... later
 %{
@@ -213,6 +227,18 @@ set(h2.ui.swpList, 'value', 1);
 vDvdtTemp = vDvdtTemp{1}; % default to 1st sweep
 axes(h2.ui.dvdtPlot);
 plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
+hold on;
+try
+    set(h2.ui.infoBox, 'string', sprintf('AP Threshold: N/A \n(dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
+    yline(h2.apThresholdDvdt, 'color', 'r');
+    apThresholdNow = h2.apThreshold;
+    apThresholdNow = apThresholdNow{fileNum};
+    apThresholdNow = apThresholdNow{1}; % default to 1st sweep
+    xline(apThresholdNow, 'color', 'r');
+    set(h2.ui.infoBox, 'string', sprintf('AP Threshold: %.2f (mV) \n(dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
+catch ME
+end
+hold off;
 ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
 xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
 guidata(src, h2);
@@ -228,6 +254,18 @@ sweepCountNow = src.Value;
 vDvdtTemp = vDvdtTemp{sweepCountNow};
 axes(h2.ui.dvdtPlot);
 plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
+hold on;
+try
+    set(h2.ui.infoBox, 'string', sprintf('AP Threshold: N/A \n(dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
+    yline(h2.apThresholdDvdt, 'color', 'r');
+    apThresholdNow = h2.apThreshold;
+    apThresholdNow = apThresholdNow{fileNum};
+    apThresholdNow = apThresholdNow{sweepCountNow};
+    xline(apThresholdNow, 'color', 'r');
+    set(h2.ui.infoBox, 'string', sprintf('AP Threshold: %.2f (mV) \n(dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
+catch ME
+end
+hold off;
 ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
 xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
 guidata(src, h2);
