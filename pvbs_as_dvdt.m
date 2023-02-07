@@ -109,15 +109,8 @@ end
 
 
 % clean up
-clear i j
-clear experimentCount sweepCount
-clear timeStampColumn voltageColumn
-clear vRec vRecTemp vRecTempTemp
-clear vDvdtTemp vDvdtTempTemp
-clear vdTemp v dvdt dvdtTemp
-clear apThresholdDvdt apThresholdTemp iAmHere
-clear displayExp displaySwp plotTarget
-clear appendNan
+clearvars -except h vDvdt apThreshold
+%clearvars -except vDvdt apThreshold
 
 % actually doing stuff here
 function [v, dvdt] = getDvdt(inputArray, tColumn, vColumn)
