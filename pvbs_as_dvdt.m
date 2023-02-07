@@ -1,12 +1,29 @@
-% manually load .mat saved from PVBS containing recordings first (not analysis results)
+% <!> manually load .mat saved from PVBS containing recordings first 
+%    (not analysis results .mat)
 
-% set columns (e.g. timestamp at column 1, V_m at column 2, i_cmd at column 3)
+
+% ---------- set parameters here ----------
+
+% assign columns (e.g. timestamp at column 1, V_m at column 2)
 timeStampColumn = 1;
 voltageColumn = 2;
+
+% define AP threshold
+apThresholdDvdt = 10; % AP threshold will be defined as Vm at which dV/dt first crosses this value
+%  variable oneStepAhead (you think of a better name):
+%   set to 1 (default) to take the Vm value immediately before the above 
+%   threshold dV/dt as the AP threshold, or set to 0 to take the Vm
+%   immediately after; the former can be more useful for recordings with 
+%   usual sampling rates (10 kHz, 20 kHz, ...) instead of higher sampling
+%   rates intended for AP waveform analysis
+oneStepAhead = 1; 
 
 % example data to display (set either to 0 to ignore)
 displayExp = 1; % experiment # from the list of experiments
 displaySwp = 1; % sweep # from the experiment selected above
+
+% --------------------
+
 
 % read data
 vRec = h.exp.data.VRec;
@@ -14,13 +31,14 @@ vRec = h.exp.data.VRec;
 experimentCount = size(vRec, 2);
 
 % initialize output
-vd = cell(1, experimentCount); % V, dV/dt
+vDvdt = cell(1, experimentCount); % V, dV/dt
 %  NB. the result will be 1 data point shorter than the original recording,
 %      as it calculates dV; to force same length as input (for whatever
 %      reason), set the following variable to 1 instead of 0
 appendNan = 0; % can't think of when it can be actually useful, but meh
+apThreshold = cell(1, experimentCount); % AP threshold (mV) for each sweep
 
-% do stuff
+% get dV/dt
 for i = 1:experimentCount
     vRecTemp = vRec{i};
     sweepCount = size(vRecTemp, 2);
@@ -30,25 +48,66 @@ for i = 1:experimentCount
         [v, dvdt] = getDvdt(vRecTempTemp, timeStampColumn, voltageColumn);
         vdTemp{j} = [v, dvdt];
     end
-    vd{i} = vdTemp;
+    vDvdt{i} = vdTemp;
+end
+
+% also get AP threshold - in a stupid redundant way coded by a stupid redundant person
+if oneStepAhead
+    for i = 1:experimentCount
+        vDvdtTemp = vDvdt{i};
+        sweepCount = size(vDvdtTemp, 2);
+        apThresholdTemp = cell(1, sweepCount);
+        for j = 1:sweepCount
+            vDvdtTempTemp = vDvdtTemp{j};
+            dvdtTemp = vDvdtTempTemp(:, 2); % dVdt was saved in column 2 by getDvdt()
+            try
+                iAmHere = find(dvdtTemp > apThresholdDvdt, 1);
+                iAmHere = iAmHere - 1; % one step ahead
+                apThresholdTemp{j} = vDvdtTempTemp(iAmHere, 1);
+            catch ME
+                apThresholdTemp{j} = NaN;
+            end
+        end
+        apThreshold{i} = apThresholdTemp;
+    end
+else
+    for i = 1:experimentCount
+        vDvdtTemp = vDvdt{i};
+        sweepCount = size(vDvdtTemp, 2);
+        apThresholdTemp = cell(1, sweepCount);
+        for j = 1:sweepCount
+            vDvdtTempTemp = vDvdtTemp{j};
+            dvdtTemp = vDvdtTempTemp(:, 2); % dVdt was saved in column 2 by getDvdt()
+            try
+                iAmHere = find(dvdtTemp > apThresholdDvdt, 1);
+                apThresholdTemp{j} = vDvdtTempTemp(iAmHere, 1);
+            catch ME
+                apThresholdTemp{j} = NaN;
+            end
+        end
+        apThreshold{i} = apThresholdTemp;
+    end
 end
 
 % plot just one example
 if (displayExp*displaySwp)
-    plotTarget = vd{displayExp};
+    plotTarget = vDvdt{displayExp};
     plotTarget = plotTarget{displaySwp};
     figure;
     plot(plotTarget(:,1), plotTarget(:,2));
-    ylabel('dV/dt (mV/ms)'); % timestamp is in units of (ms) for .mat saved from PVBS
+    ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
     xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
 end
+
 
 % clean up
 clear i j
 clear experimentCount sweepCount
 clear timeStampColumn voltageColumn
 clear vRec vRecTemp vRecTempTemp
-clear vdTemp v dvdt
+clear vDvdtTemp vDvdtTempTemp
+clear vdTemp v dvdt dvdtTemp
+clear apThresholdDvdt apThresholdTemp iAmHere
 clear displayExp displaySwp plotTarget
 clear appendNan
 
