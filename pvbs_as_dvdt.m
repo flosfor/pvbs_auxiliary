@@ -23,7 +23,7 @@ voltageColumn = 2;
 %  interpolate:
 %   interpolate Vm value from those immediately before and after the 
 %   above defined threshold (1 to enable, 0 to disable)
-    interpolate = 0; 
+    interpolate = 1; 
 %
 %  oneStepAhead:  (you think of a better name)
 %   _if_ interpolate == 0, set oneStepAhead = 1 to take the Vm value 
