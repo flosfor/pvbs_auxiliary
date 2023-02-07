@@ -1,3 +1,5 @@
+% calculate dV/dt and AP threshold
+%
 % <!> manually load .mat saved from PVBS containing recordings first 
 %    (not analysis results .mat)
 
