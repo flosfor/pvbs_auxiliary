@@ -11,23 +11,31 @@ timeStampColumn = 1;
 voltageColumn = 2;
 
 % define AP threshold
-%  variable apThresholdDvdt: 
+%
+%  apThresholdDvdt: 
 %   AP threshold will be defined as Vm at which dV/dt first crosses this
 %   value; _USE CAUTION_ not to detect the point of DC injection onset.
 %   apThresholdDvdt = 10 will work if carefully done, 20 will return 
 %   similar results (especially with oneStepAhead = 1) at lower sampling 
 %   rates or with noisier recordings, while being safer
-apThresholdDvdt = 20;
-%  variable oneStepAhead (you think of a better name):
-%   set to 1 (default) to take the Vm value immediately before crossing the 
-%   above threshold dV/dt as the AP threshold, or set to 0 to take the Vm
-%   immediately after; the former can be more useful for recordings with 
-%   usual sampling rates (10 kHz, 20 kHz, ...) instead of higher sampling
-%   rates intended for AP waveform analysis (e.g. >= 50 kHz)
-oneStepAhead = 1; 
+    apThresholdDvdt = 10;
+%
+%  interpolate:
+%   interpolate Vm value from those immediately before and after the 
+%   above defined threshold (1 to enable, 0 to disable)
+    interpolate = 0; 
+%
+%  oneStepAhead:  (you think of a better name)
+%   _if_ interpolate == 0, set oneStepAhead = 1 to take the Vm value 
+%   immediately before crossing the threshold dV/dt defined above 
+%   as the AP threshold, otherwise to take the Vm value immediately after; 
+%   oneStepAhead == 1 can be more useful for recordings with conventional 
+%   sampling rates (10 kHz, 20 kHz, ...) instead of higher sampling rates 
+%   intended for AP waveform analysis (e.g. >= 50 kHz)
+    oneStepAhead = 1; 
 
 % save after running
-saveResults = 0; % 1 to save automatically, 0 to disable
+saveResults = 1; % 1 to save automatically, 0 to disable
 
 % obsolete
 %{
@@ -68,7 +76,29 @@ for i = 1:experimentCount
 end
 
 % also get AP threshold - in a stupid redundant way coded by a stupid redundant person
-if oneStepAhead
+if interpolate
+    for i = 1:experimentCount
+        vDvdtTemp = vDvdt{i};
+        sweepCount = size(vDvdtTemp, 2);
+        apThresholdTemp = cell(1, sweepCount);
+        for j = 1:sweepCount
+            vDvdtTempTemp = vDvdtTemp{j};
+            dvdtTemp = vDvdtTempTemp(:, 2); % dVdt was saved in column 2 by getDvdt()
+            try
+                iAmHere = find(dvdtTemp >= apThresholdDvdt, 1);
+                apThresholdTempHigh = vDvdtTempTemp(iAmHere, 1);
+                apThresholdTempLow = vDvdtTempTemp(iAmHere - 1, 1);
+                apThresholdTempHighDvdt = vDvdtTempTemp(iAmHere, 2);
+                apThresholdTempLowDvdt = vDvdtTempTemp(iAmHere - 1, 2);
+                apThresholdTempGiusto = apThresholdTempLow + (apThresholdTempHigh - apThresholdTempLow) * ((apThresholdDvdt - apThresholdTempLowDvdt) / (apThresholdTempHighDvdt - apThresholdTempLowDvdt));
+                apThresholdTemp{j} = apThresholdTempGiusto;
+            catch ME
+                apThresholdTemp{j} = NaN;
+            end
+        end
+        apThreshold{i} = apThresholdTemp;
+    end
+elseif oneStepAhead
     for i = 1:experimentCount
         vDvdtTemp = vDvdt{i};
         sweepCount = size(vDvdtTemp, 2);
@@ -124,7 +154,7 @@ ui.expList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', h.exp.
 ui.swpList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', {''}, 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.8, 0.8, 0.075, 0.05], 'Callback', @selectSweep, 'interruptible', 'off');
 ui.expText = uicontrol('parent', dvdtWin, 'Style', 'text', 'string', 'Experiment:', 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.125, 0.8, 0.125, 0.05]);
 ui.swpText = uicontrol('parent', dvdtWin, 'Style', 'text', 'string', 'Sweep:', 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.625, 0.8, 0.125, 0.05]);
-ui.infoBox = uicontrol('parent', dvdtWin, 'Style', 'text', 'backgroundcolor', 'w', 'string', sprintf('AP Threshold: N/A \n(dV/dt = %.2f (V/s))', apThresholdDvdt), 'horizontalalignment', 'left', 'Units', 'normalized', 'Position', [0.2, 0.6, 0.3, 0.1]);
+ui.infoBox = uicontrol('parent', dvdtWin, 'Style', 'text', 'backgroundcolor', 'w', 'string', sprintf('AP threshold: N/A \n(dV/dt = %.2f (V/s))', apThresholdDvdt), 'horizontalalignment', 'left', 'Units', 'normalized', 'Position', [0.2, 0.6, 0.3, 0.1]);
 h2 = struct();
 h2.ui = ui;
 h2.vDvdt = vDvdt;
@@ -147,13 +177,13 @@ axes(ui.dvdtPlot);
 plot(plotTarget(:,1), plotTarget(:,2), 'color', 'k');
 hold on;
 try
-    set(ui.infoBox, 'string', sprintf('AP Threshold: N/A \n(dV/dt = %.2f (V/s))', apThresholdDvdt));
+    set(ui.infoBox, 'string', sprintf('AP threshold: N/A \n(dV/dt = %.2f (V/s))', apThresholdDvdt));
     yline(apThresholdDvdt, 'color', 'r');
     apThresholdNow = apThreshold;
     apThresholdNow = apThresholdNow{1}; % default to 1st file
     apThresholdNow = apThresholdNow{1}; % default to 1st sweep
     xline(apThresholdNow, 'color', 'r');
-    set(ui.infoBox, 'string', sprintf('AP Threshold: %.2f (mV) \n(dV/dt = %.2f (V/s))', apThresholdNow, apThresholdDvdt));
+    set(ui.infoBox, 'string', sprintf('AP threshold: %.2f (mV) \n(dV/dt = %.2f (V/s))', apThresholdNow, apThresholdDvdt));
 catch ME
 end
 hold off;
@@ -229,13 +259,13 @@ axes(h2.ui.dvdtPlot);
 plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
 hold on;
 try
-    set(h2.ui.infoBox, 'string', sprintf('AP Threshold: N/A \n(dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
+    set(h2.ui.infoBox, 'string', sprintf('AP threshold: N/A \n(dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
     yline(h2.apThresholdDvdt, 'color', 'r');
     apThresholdNow = h2.apThreshold;
     apThresholdNow = apThresholdNow{fileNum};
     apThresholdNow = apThresholdNow{1}; % default to 1st sweep
     xline(apThresholdNow, 'color', 'r');
-    set(h2.ui.infoBox, 'string', sprintf('AP Threshold: %.2f (mV) \n(dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
+    set(h2.ui.infoBox, 'string', sprintf('AP threshold: %.2f (mV) \n(dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
 catch ME
 end
 hold off;
@@ -256,13 +286,13 @@ axes(h2.ui.dvdtPlot);
 plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
 hold on;
 try
-    set(h2.ui.infoBox, 'string', sprintf('AP Threshold: N/A \n(dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
+    set(h2.ui.infoBox, 'string', sprintf('AP threshold: N/A \n(dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
     yline(h2.apThresholdDvdt, 'color', 'r');
     apThresholdNow = h2.apThreshold;
     apThresholdNow = apThresholdNow{fileNum};
     apThresholdNow = apThresholdNow{sweepCountNow};
     xline(apThresholdNow, 'color', 'r');
-    set(h2.ui.infoBox, 'string', sprintf('AP Threshold: %.2f (mV) \n(dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
+    set(h2.ui.infoBox, 'string', sprintf('AP threshold: %.2f (mV) \n(dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
 catch ME
 end
 hold off;
