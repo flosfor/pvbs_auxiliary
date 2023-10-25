@@ -2,7 +2,7 @@
 %%{
 intrinsics = h.intrinsicProperties;
 fileNames = h.exp.fileName';
-%%}
+%}
 
 rmpAll = [];
 rmpPC = [];
@@ -63,7 +63,7 @@ end
 mean_rinPC = mean(rinPC);
 mean_rinFS = mean(rinFS);
 mean_rinNFS = mean(rinNFS);
-%%}
+%}
 
 %%{
 rmpAll = rmpAll';
