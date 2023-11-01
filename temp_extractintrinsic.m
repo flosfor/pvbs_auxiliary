@@ -1,4 +1,4 @@
-% manually load .mat exported from PVBS containing intrinsic properties analysis results
+% manually load RESULTS .mat (not the entire dataset .mat) exported from PVBS containing intrinsic properties analysis results
 %%{
 intrinsics = h.intrinsicProperties;
 fileNames = h.exp.fileName';
