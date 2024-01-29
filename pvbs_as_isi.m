@@ -27,7 +27,7 @@ function output = isiAnalysis(idx, h)
 output = struct;
 
 currentExp = h.intrinsicProperties{idx};
-isi = currentExp.spike_times;; % initializing
+isi = currentExp.spike_times; % initializing
 for i = 1:length(isi)
     isiCurrentSweep = isi{i};
     isiCurrentSweep = diff(isiCurrentSweep);
