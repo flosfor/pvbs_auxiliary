@@ -73,12 +73,19 @@ vDvdt = cell(1, experimentCount); % V, dV/dt
 appendNan = 0; % can't think of when it can be actually useful, but meh
 rmp = cell(1, experimentCount);
 apThreshold = cell(1, experimentCount); % AP threshold (mV) for each sweep
-apAmplitudeTempTemp = cell(1, experimentCount);
+apAmplitude = cell(1, experimentCount);
 apTimeOfPeak = cell(1, experimentCount);
 apHalfWidth = cell(1, experimentCount);
 maxDepol = cell(1, experimentCount);
 maxRepol = cell(1, experimentCount);
 
+rmpAvg = [];
+apThresholdAvg = [];
+apAmplitudeAvg = [];
+apTimeOfPeakAvg = [];
+apHalfWidthAvg = [];
+maxDepolAvg = [];
+maxRepolAvg = [];
 
 for i = 1:experimentCount
 
@@ -173,9 +180,25 @@ for i = 1:experimentCount
     apTimeOfPeak{i} = apTimeOfPeakTemp;
     apHalfWidth{i} = apHalfWidthTemp;
     maxDepol{i} = maxDepolTemp;
-    maxRepol{i} = maxRepolTemp;    
+    maxRepol{i} = maxRepolTemp;
+
+    rmpAvg(end + 1) = rmpTemp{1};
+    apThresholdAvg(end + 1) = apThresholdTemp{1};
+    apAmplitudeAvg(end + 1) = apAmplitudeTemp{1};
+    apTimeOfPeakAvg(end + 1) = apTimeOfPeakTemp{1};
+    apHalfWidthAvg(end + 1) = apHalfWidthTemp{1};
+    maxDepolAvg(end + 1) = maxDepolTemp{1};
+    maxRepolAvg(end + 1) = maxRepolTemp{1};
 
 end
+
+rmpAvg = mean(rmpAvg);
+apThresholdAvg = mean(apThresholdAvg);
+apAmplitudeAvg = mean(apAmplitudeAvg);
+apTimeOfPeakAvg = mean(apTimeOfPeakAvg);
+apHalfWidthAvg = mean(apHalfWidthAvg);
+maxDepolAvg = mean(maxDepolAvg);
+maxRepolAvg = mean(maxRepolAvg);
 
 
 % organize output struct
@@ -191,6 +214,7 @@ apKinetics.apHalfWidth = apHalfWidth;
 apKinetics.maxDepol = maxDepol;
 apKinetics.maxRepol = maxRepol;
 apKinetics.rmp = rmp;
+
 analysisParams = struct;
 analysisParams.timeStampColumn = timeStampColumn;
 analysisParams.voltageColumn = voltageColumn;
@@ -202,14 +226,25 @@ analysisParams.interpolate = interpolate;
 analysisParams.oneStepAhead = oneStepAhead;
 apKinetics.analysisParams = analysisParams;
 
+groupedAverage = struct; 
+groupedAverage.rmpAvg = rmpAvg;
+groupedAverage.apThresholdAvg = apThresholdAvg;
+groupedAverage.apAmplitudeAvg = apAmplitudeAvg;
+groupedAverage.apTimeOfPeakAvg = apTimeOfPeakAvg;
+groupedAverage.apHalfWidthAvg = apHalfWidthAvg;
+groupedAverage.maxDepolAvg = maxDepolAvg;
+groupedAverage.maxRepolAvg = maxRepolAvg;
+apKinetics.groupedAverage = groupedAverage;
+
 
 % browser - initialize
 dvdtWin = figure('name', 'AP kinetics', 'numbertitle', 'off', 'units', 'normalized', 'position', [0.25, 0.25, 0.27, 0.48]);
 ui.dvdtPlot = axes('parent', dvdtWin, 'units', 'normalized', 'position', [0.15, 0.15, 0.75, 0.6], 'xminortick', 'on', 'yminortick', 'on', 'box', 'on');
-ui.expList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', h.exp.fileName, 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.25, 0.85, 0.4, 0.05], 'Callback', @selectFile, 'interruptible', 'off');
-ui.swpList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', {''}, 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.825, 0.85, 0.075, 0.05], 'Callback', @selectSweep, 'interruptible', 'off');
+expListStr = ['(All experiments)', h.exp.fileName];
+ui.expList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', expListStr, 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.25, 0.855, 0.4, 0.05], 'Callback', @selectFile, 'interruptible', 'off');
+ui.swpList = uicontrol('parent', dvdtWin, 'Style', 'popupmenu', 'string', {''}, 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.78, 0.855, 0.12, 0.05], 'Callback', @selectSweep, 'interruptible', 'off');
 ui.expText = uicontrol('parent', dvdtWin, 'Style', 'text', 'string', 'Experiment:', 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.1, 0.85, 0.125, 0.05]);
-ui.swpText = uicontrol('parent', dvdtWin, 'Style', 'text', 'string', 'Sweep:', 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.7, 0.85, 0.1, 0.05]);
+ui.swpText = uicontrol('parent', dvdtWin, 'Style', 'text', 'string', 'Sweep:', 'horizontalalignment', 'right', 'Units', 'normalized', 'Position', [0.68, 0.85, 0.08, 0.05]);
 %ui.infoBox = uicontrol('parent', dvdtWin, 'Style', 'text', 'backgroundcolor', 'w', 'string', sprintf('AP threshold: N/A \n(dV/dt = %.2f (V/s))', apThresholdDvdt), 'horizontalalignment', 'left', 'Units', 'normalized', 'Position', [0.2, 0.6, 0.25, 0.1]);
 ui.infoBox = uicontrol('parent', dvdtWin, 'Style', 'text', 'backgroundcolor', 'w', 'string', sprintf('AP threshold: N/A \n(dV/dt = %.2f (V/s))', apThresholdDvdt), 'horizontalalignment', 'left', 'Units', 'normalized', 'Position', [0.175, 0.475, 0.25, 0.25]);
 h2 = struct(); % fucking redundant because i wrote it in a stupid way and am not fixing it at this point
@@ -222,6 +257,7 @@ h2.apTimeOfPeak = apTimeOfPeak;
 h2.apHalfWidth = apHalfWidth;
 h2.maxDepol = maxDepol;
 h2.maxRepol = maxRepol;
+h2.groupedAverage = groupedAverage;
 guidata(dvdtWin, h2);
 
 % browser - continued
@@ -231,6 +267,8 @@ sweepList = {};
 for i = 1:sweepCountNow
     sweepList{end + 1} = num2str(i);
 end
+
+%{
 set(h2.ui.swpList, 'string', sweepList);
 set(h2.ui.swpList, 'value', 1);
 plotTarget = vDvdt{1}; % default to 1st experiment
@@ -262,6 +300,22 @@ try
 catch ME
 end
 hold off;
+%}
+
+set(h2.ui.swpList, 'string', '(N/A)');
+set(h2.ui.swpList, 'value', 1);
+try
+    set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, h2.apThresholdDvdt));
+    apThresholdNow = h2.groupedAverage.apThresholdAvg;
+    apAmplitudeNow = h2.groupedAverage.apAmplitudeAvg;
+    apHalfWidthNow = h2.groupedAverage.apHalfWidthAvg;
+    maxDepolNow = h2.groupedAverage.maxDepolAvg;
+    maxRepolNow = h2.groupedAverage.maxRepolAvg;
+    set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt));
+    set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow));
+catch ME
+end
+
 ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
 xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
 
@@ -332,42 +386,64 @@ function selectFile(src, ~)
 h2 = guidata(src);
 vDvdt = h2.vDvdt;
 fileNum = src.Value;
-vDvdtTemp = vDvdt{fileNum};
-sweepCountNow = size(vDvdtTemp, 2); % sweepCount was used earlier
-sweepList = {};
-for i = 1:sweepCountNow
-    sweepList{end + 1} = num2str(i);
+
+if fileNum == 1
+    fileNum = fileNum - 1;
+    axes(h2.ui.dvdtPlot);
+    cla;
+    set(h2.ui.swpList, 'string', '(N/A)');
+    set(h2.ui.swpList, 'value', 1);
+    try
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, h2.apThresholdDvdt));
+        apThresholdNow = h2.groupedAverage.apThresholdAvg;
+        apAmplitudeNow = h2.groupedAverage.apAmplitudeAvg;
+        apHalfWidthNow = h2.groupedAverage.apHalfWidthAvg;
+        maxDepolNow = h2.groupedAverage.maxDepolAvg;
+        maxRepolNow = h2.groupedAverage.maxRepolAvg;
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt));
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow));
+    catch ME
+    end
+else
+    fileNum = fileNum - 1;
+    vDvdtTemp = vDvdt{fileNum};
+    sweepCountNow = size(vDvdtTemp, 2); % sweepCount was used earlier
+    sweepList = {};
+    for i = 1:sweepCountNow
+        sweepList{end + 1} = num2str(i);
+    end
+    set(h2.ui.swpList, 'string', sweepList);
+    set(h2.ui.swpList, 'value', 1);
+    vDvdtTemp = vDvdtTemp{1}; % default to 1st sweep
+    axes(h2.ui.dvdtPlot);
+    plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
+    hold on;
+    try
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
+        yline(h2.apThresholdDvdt, 'color', 'r');
+        apThresholdNow = h2.apThreshold;
+        apThresholdNow = apThresholdNow{fileNum};
+        apThresholdNow = apThresholdNow{1};
+        apAmplitudeNow = h2.apAmplitude;
+        apAmplitudeNow = apAmplitudeNow{fileNum};
+        apAmplitudeNow = apAmplitudeNow{1};
+        apHalfWidthNow = h2.apHalfWidth;
+        apHalfWidthNow = apHalfWidthNow{fileNum};
+        apHalfWidthNow = apHalfWidthNow{1};
+        maxDepolNow = h2.maxDepol;
+        maxDepolNow = maxDepolNow{fileNum};
+        maxDepolNow = maxDepolNow{1};
+        maxRepolNow = h2.maxRepol;
+        maxRepolNow = maxRepolNow{fileNum};
+        maxRepolNow = maxRepolNow{1};
+        xline(apThresholdNow, 'color', 'r');
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s)', apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow));
+    catch ME
+    end
+    hold off;
 end
-set(h2.ui.swpList, 'string', sweepList);
-set(h2.ui.swpList, 'value', 1);
-vDvdtTemp = vDvdtTemp{1}; % default to 1st sweep
-axes(h2.ui.dvdtPlot);
-plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
-hold on;
-try
-    set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
-    yline(h2.apThresholdDvdt, 'color', 'r');
-    apThresholdNow = h2.apThreshold;
-    apThresholdNow = apThresholdNow{fileNum}; 
-    apThresholdNow = apThresholdNow{1}; 
-    apAmplitudeNow = h2.apAmplitude;
-    apAmplitudeNow = apAmplitudeNow{fileNum}; 
-    apAmplitudeNow = apAmplitudeNow{1}; 
-    apHalfWidthNow = h2.apHalfWidth;
-    apHalfWidthNow = apHalfWidthNow{fileNum}; 
-    apHalfWidthNow = apHalfWidthNow{1}; 
-    maxDepolNow = h2.maxDepol;
-    maxDepolNow = maxDepolNow{fileNum}; 
-    maxDepolNow = maxDepolNow{1}; 
-    maxRepolNow = h2.maxRepol;
-    maxRepolNow = maxRepolNow{fileNum}; 
-    maxRepolNow = maxRepolNow{1}; 
-    xline(apThresholdNow, 'color', 'r');
-    set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
-    set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s)', apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow));
-catch ME
-end
-hold off;
+
 ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
 xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
 
@@ -382,36 +458,58 @@ function selectSweep(src, ~)
 h2 = guidata(src);
 vDvdt = h2.vDvdt;
 fileNum = h2.ui.expList.Value;
-vDvdtTemp = vDvdt{fileNum};
-sweepCountNow = src.Value;
-vDvdtTemp = vDvdtTemp{sweepCountNow};
-axes(h2.ui.dvdtPlot);
-plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
-hold on;
-try
-    set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
-    yline(h2.apThresholdDvdt, 'color', 'r');
-    apThresholdNow = h2.apThreshold;
-    apThresholdNow = apThresholdNow{fileNum}; 
-    apThresholdNow = apThresholdNow{sweepCountNow}; 
-    apAmplitudeNow = h2.apAmplitude;
-    apAmplitudeNow = apAmplitudeNow{fileNum}; 
-    apAmplitudeNow = apAmplitudeNow{sweepCountNow}; 
-    apHalfWidthNow = h2.apHalfWidth;
-    apHalfWidthNow = apHalfWidthNow{fileNum}; 
-    apHalfWidthNow = apHalfWidthNow{sweepCountNow}; 
-    maxDepolNow = h2.maxDepol;
-    maxDepolNow = maxDepolNow{fileNum}; 
-    maxDepolNow = maxDepolNow{sweepCountNow}; 
-    maxRepolNow = h2.maxRepol;
-    maxRepolNow = maxRepolNow{fileNum}; 
-    maxRepolNow = maxRepolNow{sweepCountNow}; 
-    xline(apThresholdNow, 'color', 'r');
-    set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
-    set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s)', apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow));
-catch ME
+
+if fileNum == 1
+    fileNum = fileNum - 1;
+    axes(h2.ui.dvdtPlot);
+    cla;
+    set(h2.ui.swpList, 'string', '(N/A)');
+    set(h2.ui.swpList, 'value', 1);
+    try
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, h2.apThresholdDvdt));
+        apThresholdNow = h2.groupedAverage.apThresholdAvg;
+        apAmplitudeNow = h2.groupedAverage.apAmplitudeAvg;
+        apHalfWidthNow = h2.groupedAverage.apHalfWidthAvg;
+        maxDepolNow = h2.groupedAverage.maxDepolAvg;
+        maxRepolNow = h2.groupedAverage.maxRepolAvg;
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt));
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow));
+    catch ME
+    end
+else
+    fileNum = fileNum - 1;
+    vDvdtTemp = vDvdt{fileNum};
+    sweepCountNow = src.Value;
+    vDvdtTemp = vDvdtTemp{sweepCountNow};
+    axes(h2.ui.dvdtPlot);
+    plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
+    hold on;
+    try
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
+        yline(h2.apThresholdDvdt, 'color', 'r');
+        apThresholdNow = h2.apThreshold;
+        apThresholdNow = apThresholdNow{fileNum};
+        apThresholdNow = apThresholdNow{sweepCountNow};
+        apAmplitudeNow = h2.apAmplitude;
+        apAmplitudeNow = apAmplitudeNow{fileNum};
+        apAmplitudeNow = apAmplitudeNow{sweepCountNow};
+        apHalfWidthNow = h2.apHalfWidth;
+        apHalfWidthNow = apHalfWidthNow{fileNum};
+        apHalfWidthNow = apHalfWidthNow{sweepCountNow};
+        maxDepolNow = h2.maxDepol;
+        maxDepolNow = maxDepolNow{fileNum};
+        maxDepolNow = maxDepolNow{sweepCountNow};
+        maxRepolNow = h2.maxRepol;
+        maxRepolNow = maxRepolNow{fileNum};
+        maxRepolNow = maxRepolNow{sweepCountNow};
+        xline(apThresholdNow, 'color', 'r');
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', apThresholdNow, h2.apThresholdDvdt));
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s)', apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow));
+    catch ME
+    end
+    hold off;
 end
-hold off;
+
 ylabel('dV/dt (V/s)'); % timestamp is in units of (ms) for .mat saved from PVBS
 xlabel('V_m (mV)'); % voltage is in units of (mV) for .mat saved from PVBS
 
