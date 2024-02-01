@@ -7,7 +7,7 @@
 % ---------- set parameters here ----------
 
 % save after running
-    saveResults = 1; % 1 to save automatically, 0 to disable
+    saveResults = 0; % 1 to save automatically, 0 to disable
 
 % assign columns (e.g. time at column 1, V_m at column 2 - PVBS default)
     timeStampColumn = 1;
@@ -321,6 +321,7 @@ hold off;
 set(h2.ui.swpList, 'string', '(N/A)');
 set(h2.ui.swpList, 'value', 1);
 try
+    set(h2.ui.infoBox, 'Position', [0.175, 0.475, 0.5, 0.25]);
     set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, h2.apThresholdDvdt));
     apThresholdNow = h2.groupedAverage.apThresholdAvg;
     apAmplitudeNow = h2.groupedAverage.apAmplitudeAvg;
@@ -328,8 +329,15 @@ try
     maxDepolNow = h2.groupedAverage.maxDepolAvg;
     maxRepolNow = h2.groupedAverage.maxRepolAvg;
     rmpNow = h2.groupedAverage.rmpAvg;
+    apThresholdSEMNow = h2.groupedAverage.apThresholdSEM;
+    apAmplitudeSEMNow = h2.groupedAverage.apAmplitudeSEM;
+    apHalfWidthSEMNow = h2.groupedAverage.apHalfWidthSEM;
+    maxDepolSEMNow = h2.groupedAverage.maxDepolSEM;
+    maxRepolSEMNow = h2.groupedAverage.maxRepolSEM;
+    rmpSEMNow = h2.groupedAverage.rmpSEM;
     set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt));
-    set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s) \nRMP: %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow, rmpNow));
+    %set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s) \nRMP: %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow, rmpNow));
+    set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f +- %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f +- %.2f (mV) \nHalf-width: %.2f +- %.2f (ms) \nMax depol: %.2f +- %.2f (V/s) \nMax repol: %.2f +- %.2f (-V/s) \nRMP: %.2f +- %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, apThresholdSEMNow, h2.apThresholdDvdt, apAmplitudeNow, apAmplitudeSEMNow, apHalfWidthNow, apHalfWidthSEMNow, maxDepolNow, maxDepolSEMNow, -maxRepolNow, maxRepolSEMNow, rmpNow, rmpSEMNow));
 catch ME
 end
 
@@ -411,6 +419,7 @@ if fileNum == 1
     set(h2.ui.swpList, 'string', '(N/A)');
     set(h2.ui.swpList, 'value', 1);
     try
+        set(h2.ui.infoBox, 'Position', [0.175, 0.475, 0.5, 0.25]);
         set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, h2.apThresholdDvdt));
         apThresholdNow = h2.groupedAverage.apThresholdAvg;
         apAmplitudeNow = h2.groupedAverage.apAmplitudeAvg;
@@ -418,8 +427,15 @@ if fileNum == 1
         maxDepolNow = h2.groupedAverage.maxDepolAvg;
         maxRepolNow = h2.groupedAverage.maxRepolAvg;
         rmpNow = h2.groupedAverage.rmpAvg;
+        apThresholdSEMNow = h2.groupedAverage.apThresholdSEM;
+        apAmplitudeSEMNow = h2.groupedAverage.apAmplitudeSEM;
+        apHalfWidthSEMNow = h2.groupedAverage.apHalfWidthSEM;
+        maxDepolSEMNow = h2.groupedAverage.maxDepolSEM;
+        maxRepolSEMNow = h2.groupedAverage.maxRepolSEM;
+        rmpSEMNow = h2.groupedAverage.rmpSEM;
         set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt));
-        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s) \nRMP: %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow, rmpNow));
+        %set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s) \nRMP: %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow, rmpNow));
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f +- %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f +- %.2f (mV) \nHalf-width: %.2f +- %.2f (ms) \nMax depol: %.2f +- %.2f (V/s) \nMax repol: %.2f +- %.2f (-V/s) \nRMP: %.2f +- %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, apThresholdSEMNow, h2.apThresholdDvdt, apAmplitudeNow, apAmplitudeSEMNow, apHalfWidthNow, apHalfWidthSEMNow, maxDepolNow, maxDepolSEMNow, -maxRepolNow, maxRepolSEMNow, rmpNow, rmpSEMNow));
     catch ME
     end
 else
@@ -437,6 +453,7 @@ else
     plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
     hold on;
     try
+        set(h2.ui.infoBox, 'Position', [0.175, 0.475, 0.25, 0.25]);
         set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
         yline(h2.apThresholdDvdt, 'color', 'r');
         apThresholdNow = h2.apThreshold;
@@ -487,6 +504,7 @@ if fileNum == 1
     set(h2.ui.swpList, 'string', '(N/A)');
     set(h2.ui.swpList, 'value', 1);
     try
+        set(h2.ui.infoBox, 'Position', [0.175, 0.475, 0.5, 0.25]);
         set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, h2.apThresholdDvdt));
         apThresholdNow = h2.groupedAverage.apThresholdAvg;
         apAmplitudeNow = h2.groupedAverage.apAmplitudeAvg;
@@ -494,8 +512,15 @@ if fileNum == 1
         maxDepolNow = h2.groupedAverage.maxDepolAvg;
         maxRepolNow = h2.groupedAverage.maxRepolAvg;
         rmpNow = h2.groupedAverage.rmpAvg;
+        apThresholdSEMNow = h2.groupedAverage.apThresholdSEM;
+        apAmplitudeSEMNow = h2.groupedAverage.apAmplitudeSEM;
+        apHalfWidthSEMNow = h2.groupedAverage.apHalfWidthSEM;
+        maxDepolSEMNow = h2.groupedAverage.maxDepolSEM;
+        maxRepolSEMNow = h2.groupedAverage.maxRepolSEM;
+        rmpSEMNow = h2.groupedAverage.rmpSEM;
         set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt));
-        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s) \nRMP: %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow, rmpNow));
+        %set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s) \nRMP: %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow, rmpNow));
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f +- %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f +- %.2f (mV) \nHalf-width: %.2f +- %.2f (ms) \nMax depol: %.2f +- %.2f (V/s) \nMax repol: %.2f +- %.2f (-V/s) \nRMP: %.2f +- %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, apThresholdSEMNow, h2.apThresholdDvdt, apAmplitudeNow, apAmplitudeSEMNow, apHalfWidthNow, apHalfWidthSEMNow, maxDepolNow, maxDepolSEMNow, -maxRepolNow, maxRepolSEMNow, rmpNow, rmpSEMNow));
     catch ME
     end
 else
@@ -507,6 +532,7 @@ else
     plot(vDvdtTemp(:,1), vDvdtTemp(:,2), 'color', 'k');
     hold on;
     try
+        set(h2.ui.infoBox, 'Position', [0.175, 0.475, 0.25, 0.25]);
         set(h2.ui.infoBox, 'string', sprintf('AP kinetics \n\nThreshold: N/A \n  (dV/dt = %.2f (V/s))', h2.apThresholdDvdt));
         yline(h2.apThresholdDvdt, 'color', 'r');
         apThresholdNow = h2.apThreshold;
