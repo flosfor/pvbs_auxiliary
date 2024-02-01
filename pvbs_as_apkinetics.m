@@ -337,7 +337,7 @@ try
     rmpSEMNow = h2.groupedAverage.rmpSEM;
     set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt));
     %set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s) \nRMP: %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow, rmpNow));
-    set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f +- %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f +- %.2f (mV) \nHalf-width: %.2f +- %.2f (ms) \nMax depol: %.2f +- %.2f (V/s) \nMax repol: %.2f +- %.2f (-V/s) \nRMP: %.2f +- %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, apThresholdSEMNow, h2.apThresholdDvdt, apAmplitudeNow, apAmplitudeSEMNow, apHalfWidthNow, apHalfWidthSEMNow, maxDepolNow, maxDepolSEMNow, -maxRepolNow, maxRepolSEMNow, rmpNow, rmpSEMNow));
+    set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f %s %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f %s %.2f (mV) \nHalf-width: %.2f %s %.2f (ms) \nMax depol: %.2f %s %.2f (V/s) \nMax repol: %.2f %s %.2f (-V/s) \nRMP: %.2f %s %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, char(177), apThresholdSEMNow, h2.apThresholdDvdt, apAmplitudeNow, char(177), apAmplitudeSEMNow, apHalfWidthNow, char(177), apHalfWidthSEMNow, maxDepolNow, char(177), maxDepolSEMNow, -maxRepolNow, char(177), maxRepolSEMNow, rmpNow, char(177), rmpSEMNow));
 catch ME
 end
 
@@ -435,7 +435,7 @@ if fileNum == 1
         rmpSEMNow = h2.groupedAverage.rmpSEM;
         set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt));
         %set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s) \nRMP: %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow, rmpNow));
-        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f +- %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f +- %.2f (mV) \nHalf-width: %.2f +- %.2f (ms) \nMax depol: %.2f +- %.2f (V/s) \nMax repol: %.2f +- %.2f (-V/s) \nRMP: %.2f +- %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, apThresholdSEMNow, h2.apThresholdDvdt, apAmplitudeNow, apAmplitudeSEMNow, apHalfWidthNow, apHalfWidthSEMNow, maxDepolNow, maxDepolSEMNow, -maxRepolNow, maxRepolSEMNow, rmpNow, rmpSEMNow));
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f %s %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f %s %.2f (mV) \nHalf-width: %.2f %s %.2f (ms) \nMax depol: %.2f %s %.2f (V/s) \nMax repol: %.2f %s %.2f (-V/s) \nRMP: %.2f %s %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, char(177), apThresholdSEMNow, h2.apThresholdDvdt, apAmplitudeNow, char(177), apAmplitudeSEMNow, apHalfWidthNow, char(177), apHalfWidthSEMNow, maxDepolNow, char(177), maxDepolSEMNow, -maxRepolNow, char(177), maxRepolSEMNow, rmpNow, char(177), rmpSEMNow));
     catch ME
     end
 else
@@ -520,7 +520,7 @@ if fileNum == 1
         rmpSEMNow = h2.groupedAverage.rmpSEM;
         set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s))', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt));
         %set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f (mV) \nHalf-width: %.2f (ms) \nMax depol: %.2f (V/s) \nMax repol: %.2f (-V/s) \nRMP: %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, h2.apThresholdDvdt, apAmplitudeNow, apHalfWidthNow, maxDepolNow, -maxRepolNow, rmpNow));
-        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f +- %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f +- %.2f (mV) \nHalf-width: %.2f +- %.2f (ms) \nMax depol: %.2f +- %.2f (V/s) \nMax repol: %.2f +- %.2f (-V/s) \nRMP: %.2f +- %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, apThresholdSEMNow, h2.apThresholdDvdt, apAmplitudeNow, apAmplitudeSEMNow, apHalfWidthNow, apHalfWidthSEMNow, maxDepolNow, maxDepolSEMNow, -maxRepolNow, maxRepolSEMNow, rmpNow, rmpSEMNow));
+        set(h2.ui.infoBox, 'string', sprintf('AP kinetics (n = %.0f) \n\nThreshold: %.2f %s %.2f (mV) \n  (dV/dt = %.2f (V/s)) \nAmplitude: %.2f %s %.2f (mV) \nHalf-width: %.2f %s %.2f (ms) \nMax depol: %.2f %s %.2f (V/s) \nMax repol: %.2f %s %.2f (-V/s) \nRMP: %.2f %s %.2f (mV)', length(h2.ui.expList.String) - 1, apThresholdNow, char(177), apThresholdSEMNow, h2.apThresholdDvdt, apAmplitudeNow, char(177), apAmplitudeSEMNow, apHalfWidthNow, char(177), apHalfWidthSEMNow, maxDepolNow, char(177), maxDepolSEMNow, -maxRepolNow, char(177), maxRepolSEMNow, rmpNow, char(177), rmpSEMNow));
     catch ME
     end
 else
