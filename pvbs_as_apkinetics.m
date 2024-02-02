@@ -173,11 +173,12 @@ for i = 1:experimentCount
             maxRepolTemp{j} = maxRepolTempTemp;
 
         catch ME
-            apAmplitudeTemp{j} = nan;
-            apTimeOfPeakTemp{j} = nan;
-            apHalfWidthTemp{j} = nan;
-            maxDepolTemp{j} = nan;
-            maxRepolTemp{j} = nan;
+            apThreshold{j} = NaN; % to exclude artifacts
+            apAmplitudeTemp{j} = NaN;
+            apTimeOfPeakTemp{j} = NaN;
+            apHalfWidthTemp{j} = NaN;
+            maxDepolTemp{j} = NaN;
+            maxRepolTemp{j} = NaN;
             continue
         end
 
