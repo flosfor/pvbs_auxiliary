@@ -145,31 +145,41 @@ for i = 1:experimentCount
             end
         end
 
-        % get AP peak and time of peak
-        vRecTempTempTemp = vRecTempTemp(:, voltageColumn);
-        apPeakDetectionStart = find(vRecTempTempTemp >= apDetectionThreshold, 1);
-        apPeakDetectionEnd = find(vRecTempTempTemp(apPeakDetectionStart:end) <= apDetectionRearm, 1);
-        apPeakDetectionEnd = apPeakDetectionStart + apPeakDetectionEnd; % because the search started after position apPeakDetectionStart
-        apPeakTempTemp = max(vRecTempTempTemp(apPeakDetectionStart:apPeakDetectionEnd));
-        apAmplitudeTempTemp = apPeakTempTemp - rmpTempTemp;
-        apAmplitudeTemp{j} = apAmplitudeTempTemp;
-        apPeakTempIndex = find(vRecTempTempTemp(apPeakDetectionStart:apPeakDetectionEnd) == apPeakTempTemp);
-        apPeakTempIndex = apPeakDetectionStart + apPeakTempIndex(1); % because the search started after position apPeakDetectionStart; just use the 1st entry in case there are duplicates
-        apTimeOfPeakTemp{j} = vRecTempTemp(apPeakTempIndex, timeStampColumn); 
+        try
+            % get AP peak and time of peak
+            vRecTempTempTemp = vRecTempTemp(:, voltageColumn);
+            apPeakDetectionStart = find(vRecTempTempTemp >= apDetectionThreshold, 1);
+            apPeakDetectionEnd = find(vRecTempTempTemp(apPeakDetectionStart:end) <= apDetectionRearm, 1);
+            apPeakDetectionEnd = apPeakDetectionStart + apPeakDetectionEnd; % because the search started after position apPeakDetectionStart
+            apPeakTempTemp = max(vRecTempTempTemp(apPeakDetectionStart:apPeakDetectionEnd));
+            apAmplitudeTempTemp = apPeakTempTemp - rmpTempTemp;
+            apAmplitudeTemp{j} = apAmplitudeTempTemp;
+            apPeakTempIndex = find(vRecTempTempTemp(apPeakDetectionStart:apPeakDetectionEnd) == apPeakTempTemp);
+            apPeakTempIndex = apPeakDetectionStart + apPeakTempIndex(1); % because the search started after position apPeakDetectionStart; just use the 1st entry in case there are duplicates
+            apTimeOfPeakTemp{j} = vRecTempTemp(apPeakTempIndex, timeStampColumn);
 
-        % get AP half-width
-        apHalfPeakStart = find(vRecTempTempTemp(apThresholdTime:apPeakTempIndex) >= rmpTempTemp + 0.5*apAmplitudeTempTemp, 1); % just use the 1st entry in case there are duplicates
-        apHalfPeakStart = apThresholdTime + apHalfPeakStart;
-        apHalfPeakEnd = find(vRecTempTempTemp(apPeakTempIndex:end) <= rmpTempTemp + 0.5*apAmplitudeTempTemp, 1); % just use the last entry in case there are duplicates
-        apHalfPeakEnd = apPeakTempIndex + apHalfPeakEnd;
-        apHalfWidthTempTemp = apHalfPeakEnd - apHalfPeakStart; % later half not really necessary but just because of OCD
-        apHalfWidthTemp{j} = apHalfWidthTempTemp*si; % converting from points to ms
+            % get AP half-width
+            apHalfPeakStart = find(vRecTempTempTemp(apThresholdTime:apPeakTempIndex) >= rmpTempTemp + 0.5*apAmplitudeTempTemp, 1); % just use the 1st entry in case there are duplicates
+            apHalfPeakStart = apThresholdTime + apHalfPeakStart;
+            apHalfPeakEnd = find(vRecTempTempTemp(apPeakTempIndex:end) <= rmpTempTemp + 0.5*apAmplitudeTempTemp, 1); % just use the last entry in case there are duplicates
+            apHalfPeakEnd = apPeakTempIndex + apHalfPeakEnd;
+            apHalfWidthTempTemp = apHalfPeakEnd - apHalfPeakStart; % later half not really necessary but just because of OCD
+            apHalfWidthTemp{j} = apHalfWidthTempTemp*si; % converting from points to ms
 
-        % get dVdt min/max
-        maxDepolTempTemp = max(dvdt(apThresholdTime:apPeakTempIndex));
-        maxRepolTempTemp = min(dvdt(apPeakTempIndex:apPeakTempIndex + 2*(apHalfPeakEnd-apPeakTempIndex))); % stupid, but will work without trouble
-        maxDepolTemp{j} = maxDepolTempTemp;
-        maxRepolTemp{j} = maxRepolTempTemp;
+            % get dVdt min/max
+            maxDepolTempTemp = max(dvdt(apThresholdTime:apPeakTempIndex));
+            maxRepolTempTemp = min(dvdt(apPeakTempIndex:apPeakTempIndex + 2*(apHalfPeakEnd-apPeakTempIndex))); % stupid, but will work without trouble
+            maxDepolTemp{j} = maxDepolTempTemp;
+            maxRepolTemp{j} = maxRepolTempTemp;
+
+        catch ME
+            apAmplitudeTemp{j} = nan;
+            apTimeOfPeakTemp{j} = nan;
+            apHalfWidthTemp{j} = nan;
+            maxDepolTemp{j} = nan;
+            maxRepolTemp{j} = nan;
+            continue
+        end
 
     end
     
