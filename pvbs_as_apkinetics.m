@@ -7,7 +7,7 @@
 % ---------- set parameters here ----------
 
 % save after running
-    saveResults = 0; % 1 to save automatically, 0 to disable
+    saveResults = 1; % 1 to save automatically, 0 to disable
 
 % assign columns (e.g. time at column 1, V_m at column 2 - PVBS default)
     timeStampColumn = 1;
@@ -22,12 +22,12 @@
 %   similar results (especially with oneStepAhead = 1) while being safer 
 %   at lower sampling rates or with noisier recordings, but with larger 
 %   error if interpolate == 1
-    apThresholdDvdt = 10; % (V/s)
+    apThresholdDvdt = 20; % (V/s)
 %
 %  apDetectionThreshold:
 %   self-explanatory, but 1) not to be confused with AP threshold
-    apDetectionThreshold = -5; % (mV); this will be used for peak detection
-    apDetectionRearm = -15; % (mV); re-arm peak detection
+    apDetectionThreshold = 0; % (mV); this will be used for peak detection
+    apDetectionRearm = -20; % (mV); re-arm peak detection
     %apWidthMax = 2.5; % (ms); arbitrary, could be used instead of arm-rearm
 %
 %  rmpWindow:
@@ -47,6 +47,10 @@
 %   sampling rates (10 kHz, 20 kHz, ...) instead of higher sampling rates 
 %   intended for AP waveform analysis (e.g. >= 50 kHz)
     oneStepAhead = 1; % (Boolean)
+
+% remove artifact (e.g. from bridge balancing)
+    artifactStart = 100; % (ms)
+    artifactDuration = 0.5; % (ms)
 
 % obsolete
 %{
@@ -103,16 +107,23 @@ for i = 1:experimentCount
     
     for j = 1:sweepCount
         
-        % get dV/dt and RMP
+        % initialize
         vRecTempTemp = vRecTemp{j};
+        si = vRecTempTemp(2, timeStampColumn) - vRecTempTemp(1, timeStampColumn); % (ms); this will do
+        rmpWindowPoints = rmpWindow/si; % converting ms to points
+        artifactStartPoints = artifactStart/si; % ditto
+        artifactDurationPoints = artifactDuration/si; % ditto
+
+        % remove artifact
+        vRecTempTemp(artifactStartPoints:artifactStartPoints + artifactDurationPoints, :) = nan;
+
+        % get dV/dt and RMP
         [v, dvdt] = getDvdt(vRecTempTemp, timeStampColumn, voltageColumn);
         vDvdtTemp = [v, dvdt];
         vdTemp{j} = vDvdtTemp;
-        si = vRecTempTemp(2, timeStampColumn) - vRecTempTemp(1, timeStampColumn); % (ms); this will do
-        rmpWindowPoints = rmpWindow/si; % converting ms to points
         rmpTempTemp = nanmean(vRecTempTemp(1:rmpWindowPoints, voltageColumn));
         rmpTemp{j} = rmpTempTemp;
-
+        
         % get AP threshold
         vDvdtTempTemp = vDvdtTemp;
         dvdtTemp = vDvdtTempTemp(:, 2); % dVdt was saved in column 2 by getDvdt()
