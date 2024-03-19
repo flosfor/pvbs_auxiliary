@@ -19,7 +19,7 @@ for i = 1:expCount %%% NOT working properly yet
     h.intrinsicProperties{i}.isi_rheobase_x2 = output.isi_rheobase_x2;
 end
 
-clearvars -except h isi isi_rheobase isi_rheobase_x2 
+clearvars -except h isi isi_rheobase isi_rheobase_x2 tumor epil
 
 
 function output = isiAnalysis(idx, h)
@@ -45,6 +45,8 @@ try
     isi_rheobase_x2= isi{rheobaseX2Sweep};
     output.isi_rheobase_x2 = isi_rheobase_x2;
 catch ME
+    isi_rheobase = nan;
+    isi_rheobase_x2 = nan;
 end
 
 end
