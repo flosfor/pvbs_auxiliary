@@ -45,6 +45,8 @@ try
     isi_rheobase_x2= isi{rheobaseX2Sweep};
     output.isi_rheobase_x2 = isi_rheobase_x2;
 catch ME
+    isi_rheobase = nan;
+    isi_rheobase_x2 = nan;
 end
 
 end
