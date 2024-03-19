@@ -41,7 +41,11 @@ rheoNFS = [];
 for i = 1:length(intrinsics)
     rheoTemp = intrinsics{i};
     rheoTemp = rheoTemp.rheobase;
-    rheoAll(end + 1) = rheoTemp;
+    if isempty(rheoTemp)
+        rheoAll(end + 1) = nan;
+    else
+        rheoAll(end + 1) = rheoTemp;
+    end
 end
 
 % manually designate indices for cell types
