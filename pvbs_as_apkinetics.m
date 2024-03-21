@@ -22,12 +22,12 @@
 %   similar results (especially with oneStepAhead = 1) while being safer 
 %   at lower sampling rates or with noisier recordings, but with larger 
 %   error if interpolate == 1
-    apThresholdDvdt = 20; % (V/s)
+    apThresholdDvdt = 10; % (V/s)
 %
 %  apDetectionThreshold:
 %   self-explanatory, but 1) not to be confused with AP threshold
     apDetectionThreshold = 0; % (mV); this will be used for peak detection
-    apDetectionRearm = -20; % (mV); re-arm peak detection
+    apDetectionRearm = -10; % (mV); re-arm peak detection
     %apWidthMax = 2.5; % (ms); arbitrary, could be used instead of arm-rearm
 %
 %  rmpWindow:
@@ -50,7 +50,7 @@
 
 % remove artifact (e.g. from bridge balancing)
     artifactStart = 100; % (ms)
-    artifactDuration = 0.5; % (ms)
+    artifactDuration = 2; % (ms)
 
 % obsolete
 %{
@@ -136,23 +136,29 @@ for i = 1:experimentCount
                 apThresholdTempLowDvdt = vDvdtTempTemp(apThresholdTime - 1, 2);
                 apThresholdTempGiusto = apThresholdTempLow + (apThresholdTempHigh - apThresholdTempLow) * ((apThresholdDvdt - apThresholdTempLowDvdt) / (apThresholdTempHighDvdt - apThresholdTempLowDvdt));
                 apThresholdTemp{j} = apThresholdTempGiusto;
+                apThresholdTempTemp = apThresholdTempGiusto;
             catch ME
                 apThresholdTemp{j} = NaN;
+                apThresholdTempTemp = NaN;
             end
         elseif oneStepAhead
             try
                 apThresholdTime = find(dvdtTemp >= apThresholdDvdt, 1);
                 apThresholdTime = apThresholdTime - 1; % one step ahead
                 apThresholdTemp{j} = vDvdtTempTemp(apThresholdTime, 1);
+                apThresholdTempTemp = vDvdtTempTemp(apThresholdTime, 1);
             catch ME
                 apThresholdTemp{j} = NaN;
+                apThresholdTempTemp = NaN;
             end
         else
             try
                 apThresholdTime = find(dvdtTemp >= apThresholdDvdt, 1);
                 apThresholdTemp{j} = vDvdtTempTemp(apThresholdTime, 1);
+                apThresholdTempTemp = vDvdtTempTemp(apThresholdTime, 1);
             catch ME
                 apThresholdTemp{j} = NaN;
+                apThresholdTempTemp = NaN;
             end
         end
 
@@ -163,7 +169,7 @@ for i = 1:experimentCount
             apPeakDetectionEnd = find(vRecTempTempTemp(apPeakDetectionStart:end) <= apDetectionRearm, 1);
             apPeakDetectionEnd = apPeakDetectionStart + apPeakDetectionEnd; % because the search started after position apPeakDetectionStart
             apPeakTempTemp = max(vRecTempTempTemp(apPeakDetectionStart:apPeakDetectionEnd));
-            apAmplitudeTempTemp = apPeakTempTemp - rmpTempTemp;
+            apAmplitudeTempTemp = apPeakTempTemp - apThresholdTempTemp;
             apAmplitudeTemp{j} = apAmplitudeTempTemp;
             apPeakTempIndex = find(vRecTempTempTemp(apPeakDetectionStart:apPeakDetectionEnd) == apPeakTempTemp);
             apPeakTempIndex = apPeakDetectionStart + apPeakTempIndex(1); % because the search started after position apPeakDetectionStart; just use the 1st entry in case there are duplicates
