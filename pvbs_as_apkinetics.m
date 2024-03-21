@@ -176,9 +176,9 @@ for i = 1:experimentCount
             apTimeOfPeakTemp{j} = vRecTempTemp(apPeakTempIndex, timeStampColumn);
 
             % get AP half-width
-            apHalfPeakStart = find(vRecTempTempTemp(apThresholdTime:apPeakTempIndex) >= rmpTempTemp + 0.5*apAmplitudeTempTemp, 1); % just use the 1st entry in case there are duplicates
+            apHalfPeakStart = find(vRecTempTempTemp(apThresholdTime:apPeakTempIndex) >= apThresholdTempTemp + 0.5*apAmplitudeTempTemp, 1); % just use the 1st entry in case there are duplicates
             apHalfPeakStart = apThresholdTime + apHalfPeakStart;
-            apHalfPeakEnd = find(vRecTempTempTemp(apPeakTempIndex:end) <= rmpTempTemp + 0.5*apAmplitudeTempTemp, 1); % just use the last entry in case there are duplicates
+            apHalfPeakEnd = find(vRecTempTempTemp(apPeakTempIndex:end) <= apThresholdTempTemp + 0.5*apAmplitudeTempTemp, 1); % just use the last entry in case there are duplicates
             apHalfPeakEnd = apPeakTempIndex + apHalfPeakEnd;
             apHalfWidthTempTemp = apHalfPeakEnd - apHalfPeakStart; % later half not really necessary but just because of OCD
             apHalfWidthTemp{j} = apHalfWidthTempTemp*si; % converting from points to ms
